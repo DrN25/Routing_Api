@@ -22,6 +22,6 @@ public:
     bool hasTag(const std::string& key) const;
 
     // Comparation
-    bool operator==(const Node& other) const { return id == other.id; }
-    bool operator!=(const Node& other) const { return id != other.id; }
+    bool operator==(const Node& other) const { return id == other.getId(); }
+    bool operator!=(const Node& other) const { return id != other.getId(); }
 };
