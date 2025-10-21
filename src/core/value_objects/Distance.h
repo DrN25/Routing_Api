@@ -10,9 +10,11 @@ public:
             throw std::invalid_argument("Distance cannot be negative");
         }
     }
-
+    
     // Getter
     double getMeters() const { return meters; }
+    double getKilometers() const { return meters / 1000.0; }
+    double getMiles() const { return meters / 1609.34; } 
 
     // Comparison operators
     Distance operator+(const Distance& other) const {
