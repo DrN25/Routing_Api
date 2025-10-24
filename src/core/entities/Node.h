@@ -9,12 +9,16 @@ private:
     std::unordered_map<std::string, std::string> tags;
 
 public:
-    Node(int64_t id , const Coordinate& coordinate, const std::unordered_map<std::string, std::string>& tags);
+    Node(
+        int64_t id, 
+        const Coordinate& coordinate, 
+        const std::unordered_map<std::string, std::string>& tags = {}
+    );
     
     //Getters
     int64_t getId() const { return id; }
-    Coordinate getCoordinate() const { return coordinate; }
-    std::unordered_map<std::string, std::string> getTags() const { return tags; }
+    Coordinate& getCoordinate() { return coordinate; }
+    std::unordered_map<std::string, std::string>& getTags() { return tags; }
 
     //Tag management
     void addTag(const std::string& key, const std::string& value);
