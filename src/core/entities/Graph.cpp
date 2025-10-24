@@ -3,12 +3,30 @@
 
 Graph::Graph() : minLatitude(0), maxLatitude(0), minLongitude(0), maxLongitude(0), boundsSet(false) {}
 
-void Graph::addNode(Node* node) {
-    nodes[node->getId()] = std::unique_ptr<Node>(node);
+void Graph::addNode(
+    int64_t id,
+    double lat,
+    double lon,
+    const std::unordered_map<std::string, std::string>& tags
+) {
+    nodes[id] = std::make_unique<Node>(id, Coordinate(lat, lon), tags);
 }
 
-void Graph::addEdge(Edge* edge) {
-    edges[edge->getId()] = std::unique_ptr<Edge>(edge);
+void Graph::addEdge(
+    int64_t id,
+    int64_t fromId,
+    int64_t toId,
+    const Distance& distance,
+    bool isOneWay,
+    const std::unordered_map<std::string, std::string>& tags
+) {
+    Node* from = getNode(fromId);
+    Node* to = getNode(toId);
+
+    if (!from || !to)
+        throw std::invalid_argument("Cannot create edge: one or both node IDs do not exist.");
+
+    edges[id] = std::make_unique<Edge>(id, from, to, isOneWay, distance, tags);
 }
 
 void Graph::buildAdjacencyList() {
@@ -22,12 +40,22 @@ void Graph::buildAdjacencyList() {
     }
 }
 
+Node* Graph::getNode(int64_t id) const {
+    auto it = nodes.find(id);
+    return (it != nodes.end()) ? it->second.get() : nullptr;
+}
+
 bool Graph::hasNode(int64_t id) const {
     return nodes.count(id) > 0;
 }
 
 size_t Graph::getNodeCount() const {
     return nodes.size();
+}
+
+Edge* Graph::getEdge(int64_t id) const {
+    auto it = edges.find(id);
+    return (it != edges.end()) ? it->second.get() : nullptr;
 }
 
 bool Graph::hasEdge(int64_t id) const {
@@ -37,3 +65,48 @@ bool Graph::hasEdge(int64_t id) const {
 size_t Graph::getEdgeCount() const {
     return edges.size();
 }
+
+std::vector<Edge*> Graph::getOutgoingEdges(int64_t nodeId) const {
+    auto it = adjacencyList.find(nodeId);
+    return (it != adjacencyList.end()) ? it->second : std::vector<Edge*>{};
+}
+
+std::vector<Node*> Graph::getNeighbors(int64_t nodeId) const {
+    std::vector<Node*> neighbors;
+    auto it = adjacencyList.find(nodeId);
+    if (it != adjacencyList.end()) {
+        for (const Edge* edge : it->second) {
+            Node* neighbor = (edge->getSource()->getId() == nodeId)
+                                ? edge->getTarget()
+                                : edge->getSource();
+            neighbors.push_back(neighbor);
+        }
+    }
+    return neighbors;
+}
+
+void Graph::setBounds( double minLat, double maxLat, double minLon, double maxLon) {
+    minLatitude = minLat;
+    maxLatitude = maxLat;
+    minLongitude = minLon;
+    maxLongitude = maxLon;
+    boundsSet = true;
+}
+
+bool Graph::isWithinBounds(double lat, double lon) const {
+    if (!boundsSet) return true;
+    return lat >= minLatitude && lat <= maxLatitude && lon >= minLongitude && lon <= maxLongitude;
+}
+
+std::tuple<double, double, double, double> Graph::getBounds() const {
+    return std::make_tuple(minLatitude, maxLatitude, minLongitude, maxLongitude);
+}
+
+void Graph::clear() {
+    nodes.clear();
+    edges.clear();
+    adjacencyList.clear();
+    boundsSet = false;
+}
+
+bool Graph::isEmpty() const { return nodes.empty(); }
