@@ -11,13 +11,19 @@ private:
     int64_t id;
     Node* source;
     Node* target;
-    Distance distance;
     bool isOneWay;
+    Distance distance;
     std::unordered_map<std::string, std::string> tags;
 
 public:
-    Edge(int64_t id, Node* source, Node* target, const Distance& distance, bool isOneWay,
-         const std::unordered_map<std::string, std::string>& tags);
+    Edge(
+        int64_t id,
+        Node* source,
+        Node* target,
+        bool isOneWay = false,
+        const Distance& distance = Distance(0),
+        const std::unordered_map<std::string, std::string>& tags = {}
+    );
 
     // Calculate weight based on vehicle profile
     double getWeight(const VehicleProfile& vehicle) const;
@@ -26,9 +32,9 @@ public:
     int64_t getId() const { return id; }
     Node* getSource() const { return source; }
     Node* getTarget() const { return target; }
-    const Distance& getDistance() const { return distance; }
+    Distance& getDistance() { return distance; }
     bool getIsOneWay() const { return isOneWay; }
-    const std::unordered_map<std::string, std::string>& getTags() const { return tags; }
+    std::unordered_map<std::string, std::string>& getTags() { return tags; }
 
     //Tag management
     void addTag(const std::string& key, const std::string& value);
