@@ -24,6 +24,6 @@ public:
     // Name of the algorithm (for logging/debugging)
     virtual std::string getName() const = 0;
 
-    virtual size_t getExploredNodeCount() const = 0;
+    virtual size_t getNodesExplored() const = 0;
     virtual double getExecutionTime() const = 0;
 };
